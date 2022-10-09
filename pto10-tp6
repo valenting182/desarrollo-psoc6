@@ -1,0 +1,74 @@
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+
+void miFuncionCallback(void *callback_arg, cyhal_gpio_event_t event)
+{
+	cyhal_gpio_toggle(CYBSP_USER_LED);
+}
+
+int main(void)
+{
+
+    cy_rslt_t result;
+
+    /*Inicializa el dispositivo y los periféricos de la placa*/
+    result = cybsp_init() ;
+    if (result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+
+    cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+
+    cyhal_gpio_init(CYBSP_USER_BTN1, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_PULLUP, CYBSP_BTN_OFF);
+
+    cyhal_gpio_init(P8_0,CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG,0);
+
+    cyhal_gpio_init(P9_2, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_PULLDOWN,1);
+
+    cyhal_gpio_init(P11_4, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_PULLDOWN,1);
+
+    cyhal_pwm_t pwm_obj;
+
+    cyhal_pwm_init(&pwm_obj,P11_3,NULL);
+
+    cyhal_pwm_start(&pwm_obj);
+
+    /*Estructura inicial para la funcion callback*/
+    cyhal_gpio_callback_data_t datosCallback = {.callback = miFuncionCallback};
+
+    /*Configuracion de la interrupcion*/
+    cyhal_gpio_register_callback(CYBSP_USER_BTN1, &datosCallback);
+
+    /*Habilitación del evento disparador de la interrupción*/
+    cyhal_gpio_enable_event(CYBSP_USER_BTN1, CYHAL_GPIO_IRQ_FALL, CYHAL_ISR_PRIORITY_DEFAULT, true);
+
+
+    __enable_irq();
+
+    for (;;){
+
+    	if(cyhal_gpio_read(P9_2)==false){
+
+    		for(int veces=0; veces<5; veces++){
+    		       		cyhal_gpio_write(P8_0, 1);
+    		        	cyhal_system_delay_ms(700);
+    		        	cyhal_gpio_write(P8_0, 0);
+    		        	cyhal_system_delay_ms(700);
+    		}
+
+    	}
+
+    	if(cyhal_gpio_read(P11_4)==false){
+
+    		for(int i = 100; i >= 0; i=i-20){
+    	    	    	cyhal_pwm_set_duty_cycle(&pwm_obj, i , 10000);
+    	    	    	cyhal_system_delay_ms(500);
+    		}
+
+    	}
+
+    }
+
+}
