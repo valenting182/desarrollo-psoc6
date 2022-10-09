@@ -1,0 +1,40 @@
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+
+/*Función callback final*/
+void funcion_callback(void *callback_arg, cyhal_gpio_event_t event)
+{
+	cyhal_gpio_toggle(CYBSP_USER_LED);
+}
+
+int main(void)
+{
+    cy_rslt_t result;
+
+    /* Initialize the device and board peripherals */
+    result = cybsp_init() ;
+    if (result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+    __enable_irq();
+
+    /*Inicialización de GPIOs*/
+    cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
+
+	cyhal_gpio_init(CYBSP_USER_BTN, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_PULLUP, CYBSP_BTN_OFF);
+
+	/*Estructura de datos "callback" o de retorno de llamada*/
+	cyhal_gpio_callback_data_t datos_callback = {.callback = funcion_callback};
+
+	/*Registro en una señal de GPIO de los datos de callback*/
+	cyhal_gpio_register_callback(CYBSP_USER_BTN, &datos_callback);
+
+	/*Habilitación del evento disparador de la interrupción*/
+	cyhal_gpio_enable_event(CYBSP_USER_BTN, CYHAL_GPIO_IRQ_FALL, CYHAL_ISR_PRIORITY_DEFAULT, true);
+    for (;;)
+    {
+    	cyhal_syspm_deepsleep();
+    }
+}
