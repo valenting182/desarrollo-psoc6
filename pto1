@@ -1,0 +1,34 @@
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+
+
+int main(void)
+{
+    cy_rslt_t result;
+
+    /*Inicializa el dispositivo y los periféricos*/
+    result = cybsp_init() ;
+    if (result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+
+    __enable_irq();
+    /*Inicializa el USER LED como salida y con drive mode STRONG*/
+     cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, true);
+
+    for (;;)
+    {
+        /*Enciende el USER LED con la función de escritura de GPIO*/
+    	cyhal_gpio_write(CYBSP_USER_LED, 0);
+        /*Espera 250 ms*/
+    	cyhal_system_delay_ms(250);
+        /*Apaga el USER LED*/
+    	cyhal_gpio_write(CYBSP_USER_LED, 1);
+        /*Espera otros 250 ms*/
+    	cyhal_system_delay_ms(250);
+
+
+    }
+}
