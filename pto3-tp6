@@ -1,0 +1,29 @@
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+#include "cy_retarget_io.h"
+
+int main(void)
+{
+    __enable_irq();
+
+    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX, CY_RETARGET_IO_BAUDRATE);
+
+    cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, true);
+
+    for (;;)
+    {
+    	/*Enciende el USER LED con la función de escritura de GPIO*/
+    	    	cyhal_gpio_write(CYBSP_USER_LED, 0);
+    	    	printf("\nLED encendido");
+    	        /*Espera 250 ms*/
+    	    	cyhal_system_delay_ms(250);
+
+    	        /*Apaga el USER LED*/
+    	    	cyhal_gpio_write(CYBSP_USER_LED, 1);
+    	    	printf("\nLED apagado");
+    	        /*Espera otros 250 ms*/
+    	    	cyhal_system_delay_ms(250);
+
+    }
+}
