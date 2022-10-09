@@ -1,0 +1,36 @@
+#include "cy_pdl.h"
+#include "cyhal.h"
+#include "cybsp.h"
+
+
+int main(void)
+{
+    cy_rslt_t result;
+
+    /* Initialize the device and board peripherals */
+    result = cybsp_init() ;
+    if (result != CY_RSLT_SUCCESS)
+    {
+        CY_ASSERT(0);
+    }
+
+    __enable_irq();
+
+    cyhal_pwm_t MI_OBJETO_PWM;
+    cyhal_pwm_init(&MI_OBJETO_PWM, CYBSP_USER_LED, NULL);
+    cyhal_pwm_start(&MI_OBJETO_PWM);
+
+	for(;;){
+
+		for (int duty_cycle = 100; duty_cycle >= 0; duty_cycle--){
+			cyhal_pwm_set_duty_cycle(&MI_OBJETO_PWM, duty_cycle, 100000);
+			cyhal_system_delay_ms(10);
+		}
+
+		for (int duty_cycle = 0; duty_cycle <= 100; duty_cycle++){
+			cyhal_pwm_set_duty_cycle(&MI_OBJETO_PWM, duty_cycle, 100000);
+			cyhal_system_delay_ms(10);
+	    }
+
+	}
+}
