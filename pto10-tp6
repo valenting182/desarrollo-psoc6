@@ -2,6 +2,7 @@
 #include "cyhal.h"
 #include "cybsp.h"
 
+/*Acción que realiza la interrupción*/
 void miFuncionCallback(void *callback_arg, cyhal_gpio_event_t event)
 {
 	cyhal_gpio_toggle(CYBSP_USER_LED);
@@ -19,6 +20,8 @@ int main(void)
         CY_ASSERT(0);
     }
 
+    */Inicialización de todos los pines y de la PWM*/
+
     cyhal_gpio_init(CYBSP_USER_LED, CYHAL_GPIO_DIR_OUTPUT, CYHAL_GPIO_DRIVE_STRONG, CYBSP_LED_STATE_OFF);
 
     cyhal_gpio_init(CYBSP_USER_BTN1, CYHAL_GPIO_DIR_INPUT, CYHAL_GPIO_DRIVE_PULLUP, CYBSP_BTN_OFF);
@@ -35,7 +38,7 @@ int main(void)
 
     cyhal_pwm_start(&pwm_obj);
 
-    /*Estructura inicial para la funcion callback*/
+    /*Estructura inicial para la funcion callback para la interrupción*/
     cyhal_gpio_callback_data_t datosCallback = {.callback = miFuncionCallback};
 
     /*Configuracion de la interrupcion*/
